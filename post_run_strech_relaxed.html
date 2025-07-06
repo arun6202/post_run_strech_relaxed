@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Elite Post-Run Stretch</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --surface: #1e293b;
+            --primary-accent: #38bdf8; /* A bright sky blue */
+            --primary-text: #f8fafc;
+            --secondary-text: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --border-radius: 12px;
+            --transition: all 0.3s ease-in-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--primary-text);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+            line-height: 1.6;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-text);
+        }
+
+        .header-controls {
+            position: absolute;
+            right: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .test-btn {
+            background-color: var(--primary-accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .test-btn:hover {
+            opacity: 0.9;
+        }
+        .test-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .volume-display {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+        }
+
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1rem 8rem 1rem; /* Padding bottom for controls */
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .top-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .progress-svg circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+        .progress-bg { stroke: var(--surface); }
+        .progress-bar {
+            stroke: var(--primary-accent);
+            transition: stroke-dashoffset 1s linear;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-weight: 700;
+        }
+        .progress-value {
+            font-size: 1.75rem;
+            color: var(--primary-text);
+        }
+        .progress-label {
+            font-size: 0.7rem;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .time-summary {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            text-align: left;
+            line-height: 1.8;
+            min-width: 160px;
+        }
+        .time-summary strong {
+            color: var(--primary-text);
+            font-weight: 500;
+            float: right;
+            margin-left: 1rem;
+        }
+
+        .exercise-info h1 {
+            font-size: clamp(1.5rem, 5vw, 2.25rem);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .exercise-info h2 {
+            font-size: clamp(1rem, 3vw, 1.25rem);
+            font-weight: 400;
+            color: var(--primary-accent);
+            margin-bottom: 0.5rem;
+            min-height: 1.25em;
+        }
+
+        .exercise-info p {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+        
+        .exercise-timer {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 1.5rem 0;
+        }
+        
+        .exercise-timer .progress-value {
+            font-size: 4rem;
+        }
+        .exercise-timer .progress-label {
+            font-size: 1rem;
+        }
+
+        .exercise-meta {
+            color: var(--secondary-text);
+        }
+        
+        .details-toggle {
+            color: var(--primary-accent);
+            cursor: pointer;
+            text-decoration: underline;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            font-size: 0.9rem;
+            padding: 0.25rem 0;
+        }
+
+        .details-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .exercise-details {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .exercise-details.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .exercise-details h4 {
+            color: var(--primary-text);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .exercise-details p {
+            margin-bottom: 0.75rem;
+        }
+
+        .exercise-details p:last-child {
+            margin-bottom: 0;
+        }
+
+        #next-exercise-text {
+            min-height: 1.2em;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            border-top: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        .controls button {
+            background: transparent;
+            color: var(--primary-text);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            width: 72px;
+            height: 72px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        
+        .controls button#playPauseBtn {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-accent);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 20px;
+        }
+        
+        .controls button:hover:not(:disabled) {
+            background-color: var(--surface);
+            border-color: var(--secondary-text);
+            transform: translateY(-2px);
+        }
+        .controls button#playPauseBtn:hover:not(:disabled) {
+            background-color: var(--primary-accent);
+            opacity: 0.9;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .controls button:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .controls button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .complete-screen {
+            padding: 2rem;
+        }
+        .complete-screen h2 {
+            font-size: 2.5rem;
+            color: #4ade80; /* A nice green */
+            margin-bottom: 1rem;
+        }
+
+        .btn-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            gap: 0.2rem;
+            text-align: center;
+        }
+        
+        .btn-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .material-symbols-outlined {
+            font-size: 1.8rem;
+            line-height: 1;
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .controls button#playPauseBtn .material-symbols-outlined {
+            font-size: 2.2rem;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Material Symbols font -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-title">Elite Post-Run Stretch</div>
+        <div class="header-controls">
+            <button class="test-btn" onclick="testAudio()">🔊 Test</button>
+            <span id="volumeDisplay" class="volume-display">90%</span>
+        </div>
+    </header>
+
+    <main class="main-container" id="app-view">
+        <!-- JS will populate this view -->
+    </main>
+    
+    <div class="controls">
+        <button onclick="previousExercise()" id="prevBtn" disabled aria-label="Previous Exercise">
+            <span class="btn-content">
+                <span class="material-symbols-outlined">skip_previous</span>
+                <span class="btn-label">Prev</span>
+            </span>
+        </button>
+        <button onclick="togglePlayPause()" id="playPauseBtn" aria-label="Play/Pause">
+            <span class="btn-content">
+                <span class="material-symbols-outlined" id="playPauseIcon">play_arrow</span>
+                <span class="btn-label" id="playPauseLabel">Play</span>
+            </span>
+        </button>
+        <button onclick="skipExercise()" id="skipBtn" disabled aria-label="Skip Exercise">
+            <span class="btn-content">
+                <span class="material-symbols-outlined">skip_next</span>
+                <span class="btn-label">Next</span>
+            </span>
+        </button>
+    </div>
+
+    <script>
+    const routine = [
+        { type: 'note', name: 'TIMING NOTE:', details: "This routine is best performed immediately after a 5-10 minute cool-down walk following your run. If there's a 20-min+ gap, do a 3-5 min light re-warm-up before starting.", duration: 5, voice: "Welcome to your post-run stretching routine. This is best performed after a cool-down walk. Let's begin!" },
+        { name: 'Deep Squat Hold (Malasana)', details: "1. Stand with feet slightly wider than hip-width, toes pointing slightly outwards. 2. Lower your hips down as if sitting into a chair, going as low as comfortable. 3. Keep your heels on the floor if possible. 4. Chest up, spine straight. Hands can be in prayer or resting on the floor.", duration: 15, affected: 'Hips, Glutes, Groin, Ankles, Lower Back', dos: "Keep spine long, chest open. Breathe deeply. Use support if heels lift significantly.", donts: "Don't round your back excessively. Don't force the depth if painful.", info: "Opens hips, improves ankle mobility, stretches groin.", voice: "Starting with Deep Squat Hold. Hold for 15 seconds. Keep your spine long and breathe deeply." },
+        { name: 'Deep Squat with Adductor Push', details: "1. From Deep Squat, bring palms together in front of your chest (Namaste). 2. Press your elbows against the inside of your knees. 3. Gently push your knees outwards with your elbows, while resisting slightly with your legs. 4. Maintain a long spine.", duration: 20, affected: 'Adductors (Inner Thighs), Hips, Groin', dos: "Actively press elbows into knees. Keep chest lifted. Engage core slightly.", donts: "Don't let your back round. Avoid sharp pain in knees or hips.", info: "Deepens inner thigh and groin stretch, further opens hips.", voice: "Now, Deep Squat with Adductor Push. Press your elbows into your knees. Hold for 20 seconds." },
+        { type: 'break', name: 'Transition Break', duration: 5, voice: "Short break. Prepare for 90/90 Hip Stretch." },
+        { name: '90/90 Hip Stretch (Side 1)', details: "1. Sit on the floor. Bend one leg in front of you so the shin is parallel to your pelvis, knee at 90 degrees. 2. Bend the other leg behind you, also with the knee at 90 degrees, shin perpendicular to the front shin. 3. Keep both sit bones on the floor if possible. 4. Lean forward over the front shin for a deeper stretch.", duration: 18, affected: 'Hips (internal and external rotators), Glutes, Piriformis', dos: "Maintain 90-degree angles. Breathe into the stretch. Move slowly.", donts: "Don't force your knees if there's pain. Avoid lifting hips too much.", info: "Improves hip mobility.", voice: "90/90 Hip Stretch, first side. Maintain those 90-degree angles. Hold for 18 seconds." },
+        { name: '90/90 Hip Stretch (Side 2)', details: "Switch sides and repeat.", duration: 18, affected: 'Hips (internal and external rotators), Glutes, Piriformis', dos: "Maintain 90-degree angles. Breathe into the stretch. Move slowly.", donts: "Don't force your knees if there's pain. Avoid lifting hips too much.", info: "Improves hip mobility.", voice: "Switch sides for 90/90 Hip Stretch. Hold for 18 seconds. Breathe into the stretch." },
+        { type: 'break', name: 'Transition Break', duration: 5, voice: "Transition break. Prepare for Deep Squat to Toe Touch." },
+        { name: 'Deep Squat to Toe Touch (Hamstring Stretch)', details: "1. Stand with feet hip-width apart. 2. Squat down deeply, placing your hands/fingers under your toes. 3. Keeping hands under toes, slowly lift your hips towards the sky, straightening your legs as much as possible. 4. Lower hips back to deep squat. Repeat.", duration: 45, affected: 'Hamstrings, Calves, Lower Back, Glutes', dos: "Keep a slight bend in knees if hamstrings are very tight. Exhale as you lift hips. Keep hands anchored.", donts: "Don't lock your knees. Don't bounce or force the stretch. Avoid rounding the back excessively when lifting hips.", info: "Dynamic stretch for posterior chain.", voice: "Deep Squat to Toe Touch. 3 repetitions. Hold each lift for 5 to 10 seconds. Keep hands anchored under your toes." },
+        { type: 'break', name: 'Transition Break', duration: 30, voice: "Longer break. Prepare for Downward Dog with Calf Pedals." },
+        { name: 'Downward Dog with Calf Pedals (Parvatasana) - Right Foot Focus', details: "1. Start on hands and knees. 2. Lift hips up and back, forming an inverted V-shape. 3. Press heels towards the floor (they may not touch). 4. Gently bend left knee, pressing right heel down more (pedal). 5. Continue pedaling, focusing on pressing the right heel down for 18 seconds.", duration: 18, affected: 'Calves, Hamstrings, Shoulders, Back, Achilles Tendon', dos: "Spread fingers wide, press through palms. Keep head relaxed. Engage core.", donts: "Don't let shoulders shrug up to ears. Avoid hyperextending knees.", info: "Stretches entire back of legs, shoulders, and lengthens spine.", voice: "Downward Dog with Calf Pedals. Focus on pressing your right heel down for 18 seconds, gently pedaling." },
+        { name: 'Downward Dog with Calf Pedals (Parvatasana) - Left Foot Focus', details: "1. Maintain Downward Dog position. 2. Gently bend right knee, pressing left heel down more (pedal). 3. Continue pedaling, focusing on pressing the left heel down for 18 seconds.", duration: 18, affected: 'Calves, Hamstrings, Shoulders, Back, Achilles Tendon', dos: "Spread fingers wide, press through palms. Keep head relaxed. Engage core.", donts: "Don't let shoulders shrug up to ears. Avoid hyperextending knees.", info: "Stretches entire back of legs, shoulders, and lengthens spine.", voice: "Now switch. Focus on pressing your left heel down for 18 seconds, gently pedaling." },
+        { name: 'Downward Dog with Calf Pedals (Parvatasana)', details: "1. Start on hands and knees. 2. Lift hips up and back, forming an inverted V-shape. 3. Press heels towards the floor (they may not touch). 4. Gently bend one knee, pressing the opposite heel down more (pedal). 5. Alternate legs slowly.", duration: 18, affected: 'Calves, Hamstrings, Shoulders, Back, Achilles Tendon', dos: "Spread fingers wide, press through palms. Keep head relaxed. Engage core.", donts: "Don't let shoulders shrug up to ears. Avoid hyperextending knees.", info: "Stretches entire back of legs, shoulders, and lengthens spine.", voice: "Downward Dog with Calf Pedals. Hold for 10 seconds, then alternate pedaling your calves for 25 seconds." },
+        { type: 'break', name: 'Break & Transition', duration: 20, voice: "Break. Transition to standing for Calf Raises." },
+        { name: 'SUPPLEMENTARY: Standing Calf Raises', details: "1. Stand tall, feet hip-width apart. You can use a wall for balance. 2. Slowly rise up onto the balls of your feet, lifting your heels as high as you can. 3. Hold briefly at the top. 4. Slowly lower your heels back down.", duration: 45, affected: 'Calves (Gastrocnemius, Soleus), Ankles', dos: "Control the movement both up and down. Feel the calf muscles working. You can do single leg for more intensity.", donts: "Don't bounce. Don't let ankles roll outward or inward.", info: "Strengthens calves, improves ankle stability.", voice: "Supplementary: Standing Calf Raises. 10 to 15 repetitions. Control the movement up and down." },
+        { name: 'SUPPLEMENTARY: Ankle Circles', details: "1. Sit or stand (can hold onto a wall for balance if standing). 2. Lift one foot slightly off the ground. 3. Slowly rotate your ankle clockwise for 10-15 circles. 4. Rotate counter-clockwise for 10-15 circles. 5. Switch feet.", duration: 60, affected: 'Ankle Joint', dos: "Make large, controlled circles. Move only the ankle, not the whole leg.", donts: "Don't rush the movement. Avoid pain.", info: "Improves ankle mobility.", voice: "Supplementary: Ankle Circles. 10 to 15 circles each direction, per ankle. Make large, controlled circles." },
+        { type: 'break', name: 'Break & Transition', duration: 60, voice: "Longer break. Sip some water if needed. Prepare for World's Greatest Stretch." },
+        { name: 'World\'s Greatest Stretch (Lizard Lunge with Rotation - Side 1)', details: "1. Start in a plank. Step left foot outside left hand into a deep lunge. 2. (Rotation Up) Inhale, lift left arm towards the sky, opening chest, follow hand with gaze. Hold. 3. (Elbow to Floor) Exhale, bring left elbow down towards the floor inside left foot. Hold. 4. Repeat rotation up/down 3 times.", duration: 90, affected: 'Hip Flexors, Hamstrings, Glutes, Groin, Thoracic Spine, Shoulders, Core', dos: "Keep back leg straight and engaged. Sync breath with movement. Rotate from mid-back.", donts: "Don't let front knee go past ankle. Avoid collapsing in the supporting shoulder.", info: "Full-body dynamic stretch.", voice: "World's Greatest Stretch, first side. 3 cycles of rotation up and down. Sync your breath with the movement." },
+        { name: 'World\'s Greatest Stretch (Lizard Lunge with Rotation - Side 2)', details: "Switch legs and repeat on the other side.", duration: 90, affected: 'Hip Flexors, Hamstrings, Glutes, Groin, Thoracic Spine, Shoulders, Core', dos: "Keep back leg straight and engaged. Sync breath with movement. Rotate from mid-back.", donts: "Don't let front knee go past ankle. Avoid collapsing in the supporting shoulder.", info: "Full-body dynamic stretch.", voice: "Switch sides for World's Greatest Stretch. 3 cycles. Keep that back leg engaged." },
+        { type: 'break', name: 'Break & Transition', duration: 20, voice: "Break. Prepare for Kneeling Hip Flexor Stretch." },
+        { name: 'SUPPLEMENTARY: Kneeling Hip Flexor Stretch (Side 1)', details: "1. Kneel on one knee (use padding if needed). Place the other foot forward, knee bent at 90 degrees, directly above the ankle. 2. Gently tuck your tailbone under (posterior pelvic tilt) and shift your hips forward slightly. 3. You should feel a stretch in the front of the hip of the kneeling leg. 4. For a deeper stretch, raise the arm on the same side as the kneeling leg overhead. Hold.", duration: 25, affected: 'Hip Flexors (Psoas, Iliacus), Quadriceps (Rectus Femoris)', dos: "Maintain an upright torso. Engage glutes on the back leg side. Breathe deeply.", donts: "Don't lean forward excessively from the waist. Don't arch your lower back. Avoid pain in the front knee.", info: "Targets deep hip flexors.", voice: "Supplementary: Kneeling Hip Flexor Stretch, first side. Tuck your tailbone under and shift hips forward. Hold for 25 seconds." },
+        { name: 'SUPPLEMENTARY: Kneeling Hip Flexor Stretch (Side 2)', details: "Switch sides.", duration: 25, affected: 'Hip Flexors (Psoas, Iliacus), Quadriceps (Rectus Femoris)', dos: "Maintain an upright torso. Engage glutes on the back leg side. Breathe deeply.", donts: "Don't lean forward excessively from the waist. Don't arch your lower back. Avoid pain in the front knee.", info: "Targets deep hip flexors.", voice: "Switch sides for Kneeling Hip Flexor Stretch. Maintain that upright torso. Hold for 25 seconds." },
+        { type: 'break', name: 'Break & Transition', duration: 30, voice: "Break. Prepare for Pigeon Pose." },
+        { name: 'Pigeon Pose (Eka Pada Rajakapotasana Prep - Side 1)', details: "1. From hands and knees (or Downward Dog), bring left knee forward behind left wrist. Angle left shin across the mat (foot can be closer to hip if tight). 2. Extend right leg straight back. Hips square to front. 3. (Upright) Stay upright, hands on floor, open chest. Hold. 4. (Forward Fold) Exhale, walk hands forward, lower torso over front leg. Hold.", duration: 80, affected: 'Glutes (especially piriformis), Hip Flexors, Psoas, Outer Hips', dos: "Keep hips level and square. Use props (block under hip) if needed. Breathe deeply into tight areas.", donts: "Don't roll onto the hip of the bent leg. Avoid pain in the knee of the bent leg.", info: "Deep hip opener.", voice: "Pigeon Pose, first side. Stay upright for 15 seconds, then forward fold for the remaining time. Breathe deeply." },
+        { name: 'Pigeon Pose (Eka Pada Rajakapotasana Prep - Side 2)', details: "Switch sides.", duration: 80, affected: 'Glutes (especially piriformis), Hip Flexors, Psoas, Outer Hips', dos: "Keep hips level and square. Use props (block under hip) if needed. Breathe deeply into tight areas.", donts: "Don't roll onto the hip of the bent leg. Avoid pain in the knee of the bent leg.", info: "Deep hip opener.", voice: "Switch sides for Pigeon Pose. Keep those hips level and square. Breathe into any tight areas." },
+        { type: 'break', name: 'Break & Transition', duration: 20, voice: "Break. Prepare for Plantar Fascia Stretch." },
+        { name: 'SUPPLEMENTARY: Plantar Fascia & Toe Stretch', details: "1. Sit on the floor with legs extended, or kneel. 2. If sitting, reach for one foot. If kneeling, tuck toes under and sit back on heels. 3. Gently pull your toes back towards your shin, feeling a stretch on the sole of your foot and toes. Hold. 4. Switch feet if doing one at a time.", duration: 50, affected: 'Plantar Fascia, Toes, Intrinsic Foot Muscles', dos: "Be gentle, especially if you have foot pain. Feel the stretch along the arch.", donts: "Don't pull aggressively. Stop if you feel sharp pain.", info: "Helps prevent/alleviate plantar fasciitis.", voice: "Supplementary: Plantar Fascia and Toe Stretch. Be gentle, especially if you have foot pain. Hold for 25 seconds per foot." },
+        { type: 'break', name: 'Break & Transition', duration: 10, voice: "Short break. Prepare for Cat-Camel." },
+        { name: 'Cat-Camel Stretch (Marjaryasana-Bitilasana)', details: "1. Start on all fours, hands under shoulders, knees under hips. 2. (Camel/Marjaryasana) Exhale, round your spine towards the ceiling, tuck chin to chest, draw navel to spine. Hold. 3. (Cat/Bitilasana) Inhale, drop your belly, arch your back, lift chest and tailbone towards the ceiling. Hold. 4. Repeat slowly.", duration: 60, affected: 'Spine, Core, Back Muscles, Neck', dos: "Coordinate movement with breath. Move through the entire spine. Keep shoulders away from ears.", donts: "Don't force the range of motion. Avoid pain in neck or lower back.", info: "Improves spinal flexibility.", voice: "Cat-Camel Stretch. 3 cycles. Coordinate your movement with your breath. Each position hold for 10 seconds." },
+        { type: 'break', name: 'Stay on all fours', duration: 5, voice: "Stay on all fours for Bird-Dog." },
+        { name: 'SUPPLEMENTARY: Bird-Dog', details: "1. Start on all fours, hands under shoulders, knees under hips. Spine neutral. 2. Engage your core. Slowly extend your right arm forward and your left leg backward simultaneously. 3. Keep your hips and shoulders square to the floor. Avoid arching your back. 4. Hold briefly. 5. Slowly return to start. 6. Repeat on the other side (left arm, right leg).", duration: 80, affected: 'Core (Transverse Abdominis, Multifidus), Glutes, Shoulders, Back Stabilizers', dos: "Keep your neck in line with your spine. Move with control. Imagine balancing a glass of water on your lower back.", donts: "Don't let your lower back sag. Don't rush the movement. Avoid lifting leg/arm too high if it compromises form.", info: "Improves core stability and balance.", voice: "Supplementary: Bird-Dog. 5 to 8 slow repetitions per side. Keep your neck in line with your spine." },
+        { type: 'break', name: 'Break & Transition', duration: 5, voice: "Short break. Prepare for Cobra and Child's Pose." },
+        { name: 'Cobra Pose (Bhujangasana) & Child\'s Pose (Balasana) - Alternating', details: "1. (Cobra) Lie on stomach, hands under shoulders. Inhale, press into hands, lift chest and head off floor. Keep hips on floor. Shoulders down. Hold. 2. (Child's Pose) Exhale, push hips back to heels, forehead to floor, arms extended or by sides. Hold. 3. Repeat Cobra then Child's Pose.", duration: 70, affected: "Cobra: Spine Extensors, Chest, Abdominals. Child: Lower Back, Hips, Shoulders", dos: "Cobra: Engage glutes lightly, keep pubic bone on floor. Child: Relax completely, breathe into back.", donts: "Cobra: Don't overarch lower back, avoid shrugging shoulders. Child: If knees are sensitive, widen them.", info: "Strengthens back, stretches chest/abs, restorative.", voice: "Cobra Pose and Child's Pose alternating. Hold Cobra for 20 seconds, then Child's Pose for 15 seconds. Repeat as needed." },
+        { type: 'break', name: 'Break & Transition', duration: 5, voice: "Short break. Prepare for Wrist Stretch." },
+        { name: 'Wrist Stretch (Fingers towards knees)', details: "1. From all fours, turn hands so fingers point towards your knees, palms flat on floor. 2. Gently lean back, feeling a stretch in forearms and wrists. Hold.", duration: 18, affected: 'Wrists, Forearms', dos: "Keep palms flat. Apply gentle pressure. Breathe.", donts: "Don't force if there's sharp pain. Avoid if you have wrist injuries without medical advice.", info: "Stretches forearm flexors.", voice: "Wrist Stretch. Turn your fingers towards your knees. Hold for 18 seconds. Keep those palms flat." },
+        { type: 'break', name: 'Break & Transition', duration: 25, voice: "Break. Transition to a seated position for arm stretches." },
+        { name: 'Arm Across Chest Stretch (Shoulder - Side 1)', details: "1. Sit or stand tall. Extend one arm straight across your chest. 2. Use the other hand to gently pull the extended arm closer to your body, above or below the elbow. 3. Feel stretch in the shoulder. Hold.", duration: 33, affected: 'Shoulders (Deltoids, Rotator Cuff), Upper Back', dos: "Keep shoulder of stretched arm relaxed and down. Breathe.", donts: "Don't pull on the elbow joint. Don't shrug your shoulder.", info: "Stretches posterior and lateral deltoids.", voice: "Arm Across Chest Stretch, first side. Keep that shoulder relaxed and down. Hold for 33 seconds." },
+        { name: 'Arm Across Chest Stretch (Shoulder - Side 2)', details: "Switch arms.", duration: 33, affected: 'Shoulders (Deltoids, Rotator Cuff), Upper Back', dos: "Keep shoulder of stretched arm relaxed and down. Breathe.", donts: "Don't pull on the elbow joint. Don't shrug your shoulder.", info: "Stretches posterior and lateral deltoids.", voice: "Switch arms for Arm Across Chest Stretch. Hold for 33 seconds. Keep breathing deeply." },
+        { name: 'Overhead Triceps Stretch (Side 1)', details: "1. Sit or stand tall. Reach one arm overhead. 2. Bend the elbow, letting your hand fall behind your head/neck. 3. Use the other hand to gently press down on the bent elbow, deepening the stretch. Hold.", duration: 28, affected: 'Triceps, Shoulders, Lats', dos: "Keep chest open, spine long. Breathe into the stretch.", donts: "Don't force the elbow. Avoid arching the lower back.", info: "Stretches triceps.", voice: "Overhead Triceps Stretch, first side. Keep your chest open and spine long. Hold for 28 seconds." },
+        { name: 'Overhead Triceps Stretch (Side 2)', details: "Switch arms.", duration: 28, affected: 'Triceps, Shoulders, Lats', dos: "Keep chest open, spine long. Breathe into the stretch.", donts: "Don't force the elbow. Avoid arching the lower back.", info: "Stretches triceps.", voice: "Switch arms for Overhead Triceps Stretch. Hold for 28 seconds. Don't force that elbow." },
+        { name: 'Neck Side Stretch (Side 1)', details: "1. Sit tall. Gently tilt your head to the right, bringing right ear towards right shoulder. 2. (Optional) Use right hand on left side of head to apply very gentle pressure. 3. Feel stretch along left side of neck. Hold.", duration: 13, affected: 'Neck (Sternocleidomastoid, Scalenes, Upper Trapezius)', dos: "Keep shoulders relaxed and down. Breathe deeply. Stretch gently.", donts: "Don't pull hard on your head. Avoid pain or forcing the stretch.", info: "Releases tension in the side neck muscles.", voice: "Neck Side Stretch, first side. Keep those shoulders relaxed. Hold for 13 seconds." },
+        { name: 'Neck Side Stretch (Side 2)', details: "Switch sides.", duration: 13, affected: 'Neck (Sternocleidomastoid, Scalenes, Upper Trapezius)', dos: "Keep shoulders relaxed and down. Breathe deeply. Stretch gently.", donts: "Don't pull hard on your head. Avoid pain or forcing the stretch.", info: "Releases tension in the side neck muscles.", voice: "Switch sides for Neck Side Stretch. Hold for 13 seconds. Stretch gently." },
+        { name: 'Neck Forward Diagonal Stretch (Side 1)', details: "1. Sit tall. Turn head slightly to the left (45 degrees). 2. Gently tilt chin down towards left collarbone/armpit. 3. (Optional) Use right hand on back-right of head to apply very gentle downward pressure. 4. Feel stretch along back-right side of neck/upper trap. Hold.", duration: 18, affected: 'Neck (Levator Scapulae, Upper Trapezius), Upper Back', dos: "Keep shoulders relaxed. Tuck chin slightly. Breathe.", donts: "Don't force the stretch. Avoid sharp pain.", info: "Targets deeper neck muscles.", voice: "Neck Forward Diagonal Stretch, stretching the right side of neck. Tuck your chin slightly. Hold for 18 seconds." },
+        { name: 'Neck Forward Diagonal Stretch (Side 2)', details: "Switch sides (turn head right, chin to right collarbone, use left hand).", duration: 18, affected: 'Neck (Levator Scapulae, Upper Trapezius), Upper Back', dos: "Keep shoulders relaxed. Tuck chin slightly. Breathe.", donts: "Don't force the stretch. Avoid sharp pain.", info: "Targets deeper neck muscles.", voice: "Switch sides for Neck Forward Diagonal Stretch, stretching the left side of neck. Hold for 18 seconds." },
+        { type: 'break', name: 'Break & Transition', duration: 15, voice: "Break. Remain seated. Prepare for Seated Torso Twists." },
+        { name: 'SUPPLEMENTARY: Seated Gentle Torso Twists (Side 1)', details: "1. Sit tall on floor or chair (or stand). 2. (To Right) Gently twist your torso to the right, placing left hand on outside of right knee/thigh, and right hand behind you for support. 3. Inhale to lengthen spine, exhale to deepen twist. Look over right shoulder. Hold.", duration: 18, affected: 'Spine (Thoracic), Obliques, Back Muscles', dos: "Keep sit bones grounded. Twist from the torso, not just the neck. Grow taller on inhale.", donts: "Don't force the twist, especially in the lower back. Avoid if you have disc issues without guidance.", info: "Improves spinal mobility.", voice: "Supplementary: Seated Gentle Torso Twist to the right. Grow taller on inhale. Hold for 18 seconds." },
+        { name: 'SUPPLEMENTARY: Seated Gentle Torso Twists (Side 2)', details: "Switch sides.", duration: 18, affected: 'Spine (Thoracic), Obliques, Back Muscles', dos: "Keep sit bones grounded. Twist from the torso, not just the neck. Grow taller on inhale.", donts: "Don't force the twist, especially in the lower back. Avoid if you have disc issues without guidance.", info: "Improves spinal mobility.", voice: "Switch sides for Seated Gentle Torso Twist to the left. Keep those sit bones grounded. Hold for 18 seconds." },
+        { name: 'Rabbit Pose (Sasangasana Variation)', details: "1. Kneel in Vajrasana (sitting on heels). 2. Clasp hands behind your back, interlacing fingers. 3. Inhale, open chest, draw shoulder blades together. 4. Exhale, fold forward from hips, bringing forehead towards or to the floor. 5. Lift clasped hands up towards the ceiling, away from your back. Hold.", duration: 60, affected: 'Shoulders, Chest, Upper Back, Spine, Neck (gentle traction)', dos: "Keep sit bones on or near heels. Breathe deeply. Let gravity assist the arm stretch.", donts: "Don't force forehead to floor if uncomfortable. Avoid if severe shoulder/neck issues.", info: "Deep shoulder and chest opener, restorative.", voice: "Finally, Rabbit Pose. Clasp your hands behind your back and fold forward. Hold for 1 minute. Breathe deeply and let gravity assist." },
+        { type: 'note', name: 'Cool Down Complete', details: "Take a few deep, relaxing breaths. Hydrate well! Great job completing your post-run routine.", duration: 5, voice: "Stretching complete! Excellent work! Take some deep breaths and remember to hydrate well. You've earned it after that 4K run!" }
+    ];
+
+    // Global state
+    let currentExerciseIndex = 0;
+    let exerciseTimer;
+    let timeSpentInCurrent = 0;
+    let isPlaying = false;
+    let isPaused = false;
+    const synth = window.speechSynthesis;
+    
+    // UI Elements
+    const appView = document.getElementById('app-view');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const skipBtn = document.getElementById('skipBtn');
+
+    // Utility Functions
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.round(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const calculateTotalTime = () => routine.reduce((total, item) => total + (item.duration || 0), 0);
+
+    // Speech Synthesis
+    const speak = (text) => {
+        if (!text) return;
+        if (synth.speaking) synth.cancel();
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.volume = 0.9;
+            utterance.rate = 0.95;
+            synth.speak(utterance);
+        }, 150);
+    };
+
+    const testAudio = () => speak("Audio test successful.");
+    
+    // Progress Circle Updater
+    const updateCircularProgress = (circleElement, percentage) => {
+        if (!circleElement) return;
+        const radius = circleElement.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (percentage / 100) * circumference;
+        circleElement.style.strokeDasharray = `${circumference} ${circumference}`;
+        circleElement.style.strokeDashoffset = offset;
+    };
+
+    // Main Display Logic
+    const displayExercise = (index) => {
+        if (index >= routine.length) {
+            completeRoutine();
+            return;
+        }
+        
+        const item = routine[index];
+        const isBreak = item.type === 'break';
+        const isNote = item.type === 'note';
+        
+        let name = item.name;
+        let subtitle = '';
+        const subtitleMatch = name.match(/\(([^)]+)\)/);
+        if (subtitleMatch) {
+            subtitle = subtitleMatch[0];
+            name = name.replace(subtitleMatch[0], '').trim();
+        }
+
+        const nextItem = index + 1 < routine.length ? routine[index + 1] : null;
+
+        // Create details content if available
+        let detailsContent = '';
+        if (item.details || item.affected || item.dos || item.donts || item.info) {
+            detailsContent = `
+                <div class="exercise-details" id="exercise-details">
+                    ${item.details ? `<h4>Instructions:</h4><p>${item.details}</p>` : ''}
+                    ${item.affected ? `<h4>Muscles Affected:</h4><p>${item.affected}</p>` : ''}
+                    ${item.dos ? `<h4>Do's:</h4><p>${item.dos}</p>` : ''}
+                    ${item.donts ? `<h4>Don'ts:</h4><p>${item.donts}</p>` : ''}
+                    ${item.info ? `<h4>Benefits:</h4><p>${item.info}</p>` : ''}
+                </div>
+            `;
+        }
+
+        appView.innerHTML = `
+            <div class="top-info">
+                <div class="progress-container">
+                    <svg class="progress-svg" viewBox="0 0 100 100">
+                        <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="progress-bar" id="overall-progress-bar" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                    <div class="progress-text">
+                        <span class="progress-value" id="overall-progress-value">0%</span>
+                        <div class="progress-label">Overall</div>
+                    </div>
+                </div>
+                <div class="time-summary">
+                    <div>Total Time Spent<strong id="total-time-spent">0:00</strong></div>
+                    <div>Total Time Left<strong id="total-time-left">0:00</strong></div>
+                </div>
+            </div>
+
+            <div class="exercise-info">
+                <h1>${name}</h1>
+                <h2>${subtitle}</h2>
+                <p>${(isBreak || isNote) ? '' : `Duration: ${item.duration} seconds`}</p>
+            </div>
+            
+            <div class="exercise-timer progress-container">
+                 <svg class="progress-svg" viewBox="0 0 100 100">
+                    <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="progress-bar" id="exercise-progress-bar" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="progress-text">
+                    <span class="progress-value" id="exercise-time-left">${item.duration}</span>
+                    <div class="progress-label">Seconds</div>
+                </div>
+            </div>
+
+            <div class="exercise-meta">
+                ${detailsContent ? `<a class="details-toggle" onclick="toggleDetails()">Show Details</a>` : ''}
+                ${detailsContent}
+                <p id="next-exercise-text">
+                    ${nextItem ? `Next: ${nextItem.name}` : ''}
+                </p>
+            </div>
+        `;
+        
+        if (item.voice && isPlaying) speak(item.voice);
+        updateAllUI();
+    };
+
+    // Toggle details function
+    const toggleDetails = () => {
+        const details = document.getElementById('exercise-details');
+        const toggle = document.querySelector('.details-toggle');
+        if (details && toggle) {
+            if (details.classList.contains('visible')) {
+                details.classList.remove('visible');
+                toggle.textContent = 'Show Details';
+            } else {
+                details.classList.add('visible');
+                toggle.textContent = 'Hide Details';
+            }
+        }
+    };
+    
+    // UI Update Functions
+    const updateAllUI = () => {
+        if (currentExerciseIndex >= routine.length) return;
+        
+        const totalTime = calculateTotalTime();
+        
+        let timeElapsedSoFar = 0;
+        for (let i = 0; i < currentExerciseIndex; i++) {
+            timeElapsedSoFar += routine[i].duration;
+        }
+        const totalTimeElapsed = timeElapsedSoFar + timeSpentInCurrent;
+        const totalTimeLeft = totalTime - totalTimeElapsed;
+
+        // Overall Progress
+        const overallPercentage = totalTime > 0 ? (totalTimeElapsed / totalTime) * 100 : 0;
+        updateCircularProgress(document.getElementById('overall-progress-bar'), overallPercentage);
+        document.getElementById('overall-progress-value').textContent = `${Math.round(overallPercentage)}%`;
+        
+        // Time Summary
+        document.getElementById('total-time-spent').textContent = formatTime(totalTimeElapsed);
+        document.getElementById('total-time-left').textContent = formatTime(totalTimeLeft);
+
+        // Exercise Timer
+        const currentDuration = routine[currentExerciseIndex].duration;
+        const exercisePercentage = currentDuration > 0 ? (timeSpentInCurrent / currentDuration) * 100 : 0;
+        updateCircularProgress(document.getElementById('exercise-progress-bar'), exercisePercentage);
+        document.getElementById('exercise-time-left').textContent = Math.round(currentDuration - timeSpentInCurrent);
+        
+        updateControls();
+    };
+
+    const updateControls = () => {
+        const isFirst = currentExerciseIndex === 0;
+        const isLast = currentExerciseIndex >= routine.length - 1;
+        // Enable prev if not first and routine not complete
+        prevBtn.disabled = !isPlaying || isFirst || currentExerciseIndex >= routine.length;
+        // Enable skip if not last and routine not complete
+        skipBtn.disabled = !isPlaying || isLast || currentExerciseIndex >= routine.length;
+        // Play/Pause button should be enabled unless routine is complete
+        playPauseBtn.disabled = currentExerciseIndex >= routine.length;
+    };
+    
+    // Timer Logic
+    const startTimer = () => {
+        if (currentExerciseIndex >= routine.length) return;
+        
+        const currentItem = routine[currentExerciseIndex];
+        const totalDuration = currentItem.duration;
+        let halfAnnounced = false;
+        
+        clearInterval(exerciseTimer);
+        exerciseTimer = setInterval(() => {
+            if (isPaused) return;
+
+            timeSpentInCurrent++;
+            updateAllUI();
+            
+            // Halfway announcement
+            if (!halfAnnounced && totalDuration > 15 && timeSpentInCurrent >= Math.floor(totalDuration / 2)) {
+                if (/Side 1/i.test(currentItem.name)) {
+                    speak('Halfway there. Get ready to switch sides.');
+                } else {
+                   speak('Halfway there.');
+                }
+                halfAnnounced = true;
+            }
+
+            if (timeSpentInCurrent >= totalDuration) {
+                clearInterval(exerciseTimer);
+                currentExerciseIndex++;
+                timeSpentInCurrent = 0;
+                displayExercise(currentExerciseIndex);
+                if(isPlaying) startTimer();
+            }
+        }, 1000);
+    };
+
+    // Control Actions
+    const skipExercise = (isPrev = false) => {
+        clearInterval(exerciseTimer);
+        currentExerciseIndex += isPrev ? -1 : 1;
+        timeSpentInCurrent = 0;
+        if (currentExerciseIndex < 0) currentExerciseIndex = 0;
+        if (currentExerciseIndex >= routine.length) {
+            completeRoutine();
+            return;
+        }
+        displayExercise(currentExerciseIndex);
+        if (isPlaying && !isPaused) startTimer();
+    };
+
+    const previousExercise = () => skipExercise(true);
+
+    const updatePlayPauseBtn = () => {
+        const icon = document.getElementById('playPauseIcon');
+        const label = document.getElementById('playPauseLabel');
+        if (!isPlaying) {
+            if (icon) icon.textContent = 'play_arrow';
+            if (label) label.textContent = 'Play';
+        } else if (isPaused) {
+            if (icon) icon.textContent = 'play_arrow';
+            if (label) label.textContent = 'Resume';
+        } else {
+            if (icon) icon.textContent = 'pause';
+            if (label) label.textContent = 'Pause';
+        }
+    };
+
+    const togglePlayPause = () => {
+        if (!isPlaying) {
+            isPlaying = true;
+            isPaused = false;
+            updatePlayPauseBtn();
+            displayExercise(currentExerciseIndex);
+            startTimer();
+        } else {
+            isPaused = !isPaused;
+            updatePlayPauseBtn();
+            if (isPaused) {
+                synth.pause();
+            } else {
+                synth.resume();
+            }
+        }
+        updateControls();
+    };
+
+    const completeRoutine = () => {
+        isPlaying = false;
+        isPaused = false;
+        clearInterval(exerciseTimer);
+        appView.innerHTML = `
+            <div class="complete-screen">
+                <h2>Routine Complete!</h2>
+                <p>Great work taking care of your body. Remember to hydrate and recover well.</p>
+                <button class="test-btn" id="restartBtn">Restart</button>
+            </div>
+        `;
+        playPauseBtn.disabled = true;
+        prevBtn.disabled = true;
+        skipBtn.disabled = true;
+        speak("Congratulations! You have completed the stretching routine. Great work!");
+        // Add restart functionality
+        setTimeout(() => {
+            const restartBtn = document.getElementById('restartBtn');
+            if (restartBtn) {
+                restartBtn.onclick = function() {
+                    currentExerciseIndex = 0;
+                    timeSpentInCurrent = 0;
+                    isPlaying = false;
+                    isPaused = false;
+                    playPauseBtn.disabled = false;
+                    updatePlayPauseBtn();
+                    displayExercise(currentExerciseIndex);
+                };
+            }
+        }, 100);
+    };
+    
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => {
+        updatePlayPauseBtn();
+        displayExercise(currentExerciseIndex);
+    });
+    </script>
+</body>
+</html>
